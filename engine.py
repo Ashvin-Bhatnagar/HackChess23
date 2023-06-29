@@ -19,14 +19,65 @@ class State():
 
         self.whiteTurn = True
         self.log = []
+        self.won = False
+        self.draw = False
+
 
     def makeMove(self, move):
+        if chess_board.is_checkmate():
+            self.won = True
+        if chess_board.is_stalemate() or chess_board.is_insufficient_material() or chess_board.can_claim_threefold_repetition() or chess_board.can_claim_fifty_moves() or chess_board.can_claim_draw() or chess_board.is_fivefold_repetition() or chess_board.is_seventyfive_moves():
+            self.draw = True
+        move.is_castle()
+        if move.white_king_castle:
+            if not chess_board.has_kingside_castling_rights(chess.WHITE):
+                self.valid = False
+            else:
+                self.board[move.startRow][move.startCol] = "  "
+                self.board[move.endRow][move.endCol] = move.pieceMoved
+                self.board[7][7] = "  "
+                self.board[7][5] = "wR"
+        elif move.white_queen_castle:
+            if not chess_board.has_queenside_castling_rights(chess.WHITE):
+                self.valid = False
+            else:
+                self.board[move.startRow][move.startCol] = "  "
+                self.board[move.endRow][move.endCol] = move.pieceMoved
+                self.board[7][0] = "  "
+                self.board[7][3] = "wR"
+        elif move.black_king_castle:
+            if not chess_board.has_kingside_castling_rights(chess.BLACK):
+                self.valid = False
+            else:
+                self.board[move.startRow][move.startCol] = "  "
+                self.board[move.endRow][move.endCol] = move.pieceMoved
+                self.board[0][7] = "  "
+                self.board[0][5] = "bR"
+        elif move.black_queen_castle:
+            if not chess_board.has_queenside_castling_rights(chess.BLACK):
+                self.valid = False
+            else:
+                self.board[move.startRow][move.startCol] = "  "
+                self.board[move.endRow][move.endCol] = move.pieceMoved
+                self.board[0][0] = "  "
+                self.board[0][3] = "bR"
         self.board[move.startRow][move.startCol] = "  "
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.log.append(move)
         self.whiteTurn = not self.whiteTurn
         chess_board.push_san(move.getChessNotation())
 
+
+'''
+    def undoMove(self):
+        if len(self.log) != 0:
+            last = self.log.pop()
+            self.board[last.startRow][last.startCol] = last.pieceMoved
+            self.board[last.endRow][last.endCol] = last.pieceCaptured
+            self.whiteTurn = not self.whiteTurn
+            chess_board.pop()
+'''
+            
 
 class Move():
 
@@ -46,16 +97,32 @@ class Move():
         self.column_files = {r: c for c, r in self.file_columns.items()}
 
         self.piece_c = {"bR": "R", "bN": "N", "bB": "B", "bQ": "Q", "bK": "K", "bP": "", "wR": "R", "wN": "N", "wB": "B", "wQ": "Q", "wK": "K", "wP": "", "  ": "  "}
+        self.white_king_castle = False
+        self.white_queen_castle = False
+        self.black_king_castle = False
+        self.black_queen_castle = False
     
     def getChessNotation(self):
         self.checkCaptured(self.pieceMoved, self.pieceCaptured)
-        if self.pawn_captured:
-            string = self.getFile(self.startCol)
-            return string + "x" + self.getRankFile(self.endRow, self.endCol)
-        elif self.capturing:
-            return self.getPieceMoved(self.pieceMoved) + "x" + self.getRankFile(self.endRow, self.endCol)
+        self.is_castle()
+        if self.white_king_castle:
+            return "0-0"
+        elif self.white_queen_castle:
+            return "0-0-0"
+        elif self.black_king_castle:
+            return "0-0"
+        elif self.black_queen_castle:
+            return "0-0-0"
         else:
-            return self.getPieceMoved(self.pieceMoved) + self.getRankFile(self.endRow, self.endCol)
+            if self.pawn_captured:
+                string = self.getFile(self.startCol)
+                return string + "x" + self.getRankFile(self.endRow, self.endCol)
+            elif self.capturing:
+                return self.getPieceMoved(self.pieceMoved) + "x" + self.getRankFile(self.endRow, self.endCol)
+            else:
+                return self.getPieceMoved(self.pieceMoved) + self.getRankFile(self.endRow, self.endCol)
+        
+
     
     def checkCaptured(self, start, end):
         if (self.getPieceMoved(start) == "" or self.getPieceMoved(start) == "") and (self.getPieceCaptured(end) != "  "):
@@ -74,3 +141,17 @@ class Move():
     
     def getPieceCaptured(self, pc):
         return self.piece_c[pc]
+    
+    def is_castle(self):
+        if (self.pieceMoved == "wK"):
+            if (self.endCol == 6 and self.endRow == 7):
+                self.white_king_castle = True
+            elif (self.endCol == 2 and self.endRow == 7):
+                self.white_queen_castle = True
+        elif (self.pieceMoved == "bK"):
+            if (self.endCol == 6 and self.endRow == 0):
+                self.black_king_castle = True
+            elif (self.endCol == 2 and self.endRow == 0):
+                self.black_queen_castle = True
+
+

@@ -7,7 +7,7 @@ chess_board = chess.Board()
 
 WIDTH = HEIGHT = 512
 DIM = 8
-SQ_SIZE = HEIGHT // DIM
+SQ_SIZE = (HEIGHT) // DIM
 FPS = 15
 IMAGES = {}
 
@@ -21,17 +21,20 @@ def load_Images():
 # User Input
 def main():
     pg.init()
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    screen = pg.display.set_mode((WIDTH + 40, HEIGHT))
     clock = pg.time.Clock()
-    screen.fill(pg.Color("white"))
     state = engine.State()
     load_Images()
     running = True
     sq_from_move = ()
     playerClicks = []
     while running:
+        if state.whiteTurn:
+            screen.fill(pg.Color("white"))
+        else:
+            screen.fill(pg.Color("black"))
         for e in pg.event.get():
-            if e.type == pg.QUIT:
+            if e.type == pg.QUIT or state.won or state.draw:
                 running = False
             elif e.type == pg.MOUSEBUTTONDOWN:
                 location = pg.mouse.get_pos()
@@ -49,6 +52,9 @@ def main():
                     state.makeMove(move)
                     sq_from_move = ()
                     playerClicks = []
+            # elif e.type == pg.KEYDOWN:
+            #     if e.key == pg.K_z:
+            #         state.undoMove()
 
         drawGame(screen, state)
         clock.tick(FPS)
