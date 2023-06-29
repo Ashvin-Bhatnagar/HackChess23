@@ -1,6 +1,9 @@
 import pygame as pg
 import engine
 import math
+import chess
+
+chess_board = chess.Board()
 
 WIDTH = HEIGHT = 512
 DIM = 8
@@ -64,7 +67,6 @@ def drawSquare(screen, board):
             piece = board[row][column]
             if piece != "  ":
                 screen.blit(IMAGES[piece], pg.Rect(column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
-
 
 
 main()
