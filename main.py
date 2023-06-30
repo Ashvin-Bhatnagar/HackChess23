@@ -2,6 +2,7 @@ import pygame as pg
 import engine
 import math
 import chess
+from pygame.locals import *
 
 chess_board = chess.Board()
 
@@ -48,8 +49,31 @@ def main():
                     playerClicks.append(sq_from_move)
                 if len(playerClicks) == 2:
                     move = engine.Move(playerClicks[0], playerClicks[1], state.board)
-                    print(move.getChessNotation())
+                    move.is_promotion()
+                    if move.valid_promotion:
+                        pg.event.clear()
+                        while True:
+                            event = pg.event.wait()
+                            if event.type == QUIT:
+                                pg.quit()
+                            elif event.type == KEYDOWN:
+                                if event.key == pg.K_q:
+                                    move.promoted_to = "Q"
+                                    break
+                                elif event.key == pg.K_r:
+                                    move.promoted_to = "R"
+                                    break
+                                elif event.key == pg.K_b:
+                                    move.promoted_to = "B"
+                                    break
+                                elif event.key == pg.K_n:
+                                    move.promoted_to = "N"
+                                    break
+                                else:
+                                    running = False
+                                    break
                     state.makeMove(move)
+                    print(move.getChessNotation())
                     sq_from_move = ()
                     playerClicks = []
             # elif e.type == pg.KEYDOWN:
