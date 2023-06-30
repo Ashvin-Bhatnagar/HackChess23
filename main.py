@@ -84,7 +84,10 @@ def main():
                                     running = False
                                     break
                     state.makeMove(move)
+                    # print(state.board)
+
                     print(move.getChessNotation())
+
                     sq_from_move = ()
                     playerClicks = []
             # elif e.type == pg.KEYDOWN:
