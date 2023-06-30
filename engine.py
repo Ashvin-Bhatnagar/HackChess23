@@ -3,6 +3,7 @@ import chess
 
 chess_board = chess.Board()
 
+
 class State():
     def __init__(self):
         # Board
@@ -21,7 +22,6 @@ class State():
         self.log = []
         self.won = False
         self.draw = False
-
 
     def makeMove(self, move):
         move.is_castle()
@@ -90,7 +90,7 @@ class State():
                 self.log.append(move)
                 self.whiteTurn = not self.whiteTurn
                 chess_board.push_san(move.getChessNotation())
-        
+
         if chess_board.is_checkmate():
             self.won = True
         if chess_board.is_stalemate() or chess_board.is_insufficient_material() or chess_board.can_claim_threefold_repetition() or chess_board.can_claim_fifty_moves() or chess_board.can_claim_draw() or chess_board.is_fivefold_repetition() or chess_board.is_seventyfive_moves():
@@ -106,7 +106,7 @@ class State():
             self.whiteTurn = not self.whiteTurn
             chess_board.pop()
 '''
-            
+
 
 class Move():
 
@@ -119,13 +119,16 @@ class Move():
         self.pieceCaptured = board[self.endRow][self.endCol]
         self.capturing = False
         self.pawn_captured = False
-        self.rank_rows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
+        self.rank_rows = {"1": 7, "2": 6, "3": 5,
+                          "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
         self.row_ranks = {r: c for c, r in self.rank_rows.items()}
 
-        self.file_columns = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+        self.file_columns = {"a": 0, "b": 1, "c": 2,
+                             "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
         self.column_files = {r: c for c, r in self.file_columns.items()}
 
-        self.piece_c = {"bR": "R", "bN": "N", "bB": "B", "bQ": "Q", "bK": "K", "bP": "", "wR": "R", "wN": "N", "wB": "B", "wQ": "Q", "wK": "K", "wP": "", "  ": "  "}
+        self.piece_c = {"bR": "R", "bN": "N", "bB": "B", "bQ": "Q", "bK": "K", "bP": "",
+                        "wR": "R", "wN": "N", "wB": "B", "wQ": "Q", "wK": "K", "wP": "", "  ": "  "}
         self.w_p_pieces = {"Q": "wQ", "R": "wR", "B": "wB", "N": "wN"}
         self.b_p_pieces = {"Q": "bQ", "R": "bR", "B": "bB", "N": "bN"}
 
@@ -135,14 +138,14 @@ class Move():
         self.black_queen_castle = False
         self.valid_promotion = False
         self.promoted_to = ""
-    
+
     def getChessNotation(self):
         self.checkCaptured(self.pieceMoved, self.pieceCaptured)
         self.is_castle()
         self.is_promotion()
         if self.valid_promotion:
             if self.pawn_captured:
-                 return self.getFile(self.startCol) + "x" + self.getRankFile(self.endRow, self.endCol) + self.promoted_to
+                return self.getFile(self.startCol) + "x" + self.getRankFile(self.endRow, self.endCol) + self.promoted_to
             else:
                 return self.getRankFile(self.endRow, self.endCol) + self.promoted_to
         else:
@@ -161,10 +164,8 @@ class Move():
                 elif self.capturing:
                     return self.getPieceMoved(self.pieceMoved) + "x" + self.getRankFile(self.endRow, self.endCol)
                 else:
-                    return self.getPieceMoved(self.pieceMoved) + self.getRankFile(self.endRow, self.endCol)
-            
+                    return self.getPieceMoved(self.pieceMoved) + self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
 
-    
     def checkCaptured(self, start, end):
         if (self.getPieceMoved(start) == "" or self.getPieceMoved(start) == "") and (self.getPieceCaptured(end) != "  "):
             self.pawn_captured = True
@@ -173,16 +174,16 @@ class Move():
 
     def getRankFile(self, r, c):
         return self.column_files[c] + self.row_ranks[r]
-    
+
     def getPieceMoved(self, pm):
         return self.piece_c[pm]
-    
+
     def getFile(self, c):
         return self.column_files[c]
-    
+
     def getPieceCaptured(self, pc):
         return self.piece_c[pc]
-    
+
     def is_castle(self):
         if (self.pieceMoved == "wK"):
             if (self.endCol == 6 and self.endRow == 7):
@@ -194,7 +195,7 @@ class Move():
                 self.black_king_castle = True
             elif (self.endCol == 2 and self.endRow == 0):
                 self.black_queen_castle = True
-    
+
     def is_promotion(self):
         if (self.pieceMoved == "wP" and self.startRow == 1):
             if self.endRow == 0:
@@ -206,6 +207,3 @@ class Move():
                 self.valid_promotion = True
             else:
                 self.valid_promotion = False
-
-
-

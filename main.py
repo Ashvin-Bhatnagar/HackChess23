@@ -14,12 +14,17 @@ IMAGES = {}
 
 # Load Images Function
 
+
 def load_Images():
-    pieces = ['wP', "wR", "wN", "wB", "wQ", "wK", "bP", "bR", "bN", "bB", "bQ", "bK"]
+    pieces = ['wP', "wR", "wN", "wB", "wQ",
+              "wK", "bP", "bR", "bN", "bB", "bQ", "bK"]
     for piece in pieces:
-        IMAGES[piece] = pg.transform.scale(pg.image.load("images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = pg.transform.scale(pg.image.load(
+            "images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 # User Input
+
+
 def main():
     pg.init()
     screen = pg.display.set_mode((WIDTH + 40, HEIGHT))
@@ -48,7 +53,8 @@ def main():
                     sq_from_move = (row, col)
                     playerClicks.append(sq_from_move)
                 if len(playerClicks) == 2:
-                    move = engine.Move(playerClicks[0], playerClicks[1], state.board)
+                    move = engine.Move(
+                        playerClicks[0], playerClicks[1], state.board)
                     move.is_promotion()
                     if move.valid_promotion:
                         pg.event.clear()
@@ -84,6 +90,7 @@ def main():
         clock.tick(FPS)
         pg.display.flip()
 
+
 def drawGame(screen, state):
     drawSquare(screen, state.board)
 
@@ -93,10 +100,12 @@ def drawSquare(screen, board):
     for row in range(DIM):
         for column in range(DIM):
             color = colors[(row + column) % 2]
-            pg.draw.rect(screen, color, pg.Rect(column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            pg.draw.rect(screen, color, pg.Rect(
+                column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
             piece = board[row][column]
             if piece != "  ":
-                screen.blit(IMAGES[piece], pg.Rect(column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                screen.blit(IMAGES[piece], pg.Rect(
+                    column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
 main()
