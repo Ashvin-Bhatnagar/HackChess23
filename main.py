@@ -40,6 +40,10 @@ def main():
         else:
             screen.fill(pg.Color("black"))
         for e in pg.event.get():
+            if state.won:
+                print("Checkmate!")
+            if state.draw:
+                print("Draw!")
             if e.type == pg.QUIT or state.won or state.draw:
                 running = False
             elif e.type == pg.MOUSEBUTTONDOWN:
@@ -56,6 +60,7 @@ def main():
                     move = engine.Move(
                         playerClicks[0], playerClicks[1], state.board)
                     move.is_promotion()
+                    move.en_passant()
                     if move.valid_promotion:
                         pg.event.clear()
                         while True:

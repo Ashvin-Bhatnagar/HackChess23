@@ -22,10 +22,12 @@ class State():
         self.log = []
         self.won = False
         self.draw = False
+        self.enpassantPossible = ()
 
     def makeMove(self, move):
         move.is_castle()
         move.is_promotion()
+        move.en_passant()
 
         if move.valid_promotion:
             self.board[move.startRow][move.startCol] = "  "
@@ -40,56 +42,71 @@ class State():
                 self.whiteTurn = not self.whiteTurn
                 chess_board.push_san(move.getChessNotation())
         else:
-            if move.white_king_castle:
-                if not chess_board.has_kingside_castling_rights(chess.WHITE):
-                    self.valid = False
-                else:
-                    self.board[move.startRow][move.startCol] = "  "
-                    self.board[move.endRow][move.endCol] = move.pieceMoved
-                    self.board[7][7] = "  "
-                    self.board[7][5] = "wR"
-                    self.log.append(move)
-                    self.whiteTurn = not self.whiteTurn
-                    chess_board.push_san(move.getChessNotation())
-            elif move.white_queen_castle:
-                if not chess_board.has_queenside_castling_rights(chess.WHITE):
-                    self.valid = False
-                else:
-                    self.board[move.startRow][move.startCol] = "  "
-                    self.board[move.endRow][move.endCol] = move.pieceMoved
-                    self.board[7][0] = "  "
-                    self.board[7][3] = "wR"
-                    self.log.append(move)
-                    self.whiteTurn = not self.whiteTurn
-                    chess_board.push_san(move.getChessNotation())
-            elif move.black_king_castle:
-                if not chess_board.has_kingside_castling_rights(chess.BLACK):
-                    self.valid = False
-                else:
-                    self.board[move.startRow][move.startCol] = "  "
-                    self.board[move.endRow][move.endCol] = move.pieceMoved
-                    self.board[0][7] = "  "
-                    self.board[0][5] = "bR"
-                    self.log.append(move)
-                    self.whiteTurn = not self.whiteTurn
-                    chess_board.push_san(move.getChessNotation())
-            elif move.black_queen_castle:
-                if not chess_board.has_queenside_castling_rights(chess.BLACK):
-                    self.valid = False
-                else:
-                    self.board[move.startRow][move.startCol] = "  "
-                    self.board[move.endRow][move.endCol] = move.pieceMoved
-                    self.board[0][0] = "  "
-                    self.board[0][3] = "bR"
-                    self.log.append(move)
-                    self.whiteTurn = not self.whiteTurn
-                    chess_board.push_san(move.getChessNotation())
-            else:
-                self.board[move.startRow][move.startCol] = "  "
-                self.board[move.endRow][move.endCol] = move.pieceMoved
+            if move.is_w_en_passant:
+                self.board[move.startRow][move.endCol] == "  "
+                self.board[move.startRow][move.startCol] == "  "
+                self.board[move.endRow][move.endCol] == "wP"
                 self.log.append(move)
                 self.whiteTurn = not self.whiteTurn
                 chess_board.push_san(move.getChessNotation())
+            elif move.is_b_en_passant:
+                self.board[move.startRow][move.endCol] == "  "
+                self.board[move.startRow][move.startCol] == "  "
+                self.board[move.endRow][move.endCol] == "bP"
+                self.log.append(move)
+                self.whiteTurn = not self.whiteTurn
+                chess_board.push_san(move.getChessNotation())
+            else:
+                if move.white_king_castle:
+                    if not chess_board.has_kingside_castling_rights(chess.WHITE):
+                        self.valid = False
+                    else:
+                        self.board[move.startRow][move.startCol] = "  "
+                        self.board[move.endRow][move.endCol] = move.pieceMoved
+                        self.board[7][7] = "  "
+                        self.board[7][5] = "wR"
+                        self.log.append(move)
+                        self.whiteTurn = not self.whiteTurn
+                        chess_board.push_san(move.getChessNotation())
+                elif move.white_queen_castle:
+                    if not chess_board.has_queenside_castling_rights(chess.WHITE):
+                        self.valid = False
+                    else:
+                        self.board[move.startRow][move.startCol] = "  "
+                        self.board[move.endRow][move.endCol] = move.pieceMoved
+                        self.board[7][0] = "  "
+                        self.board[7][3] = "wR"
+                        self.log.append(move)
+                        self.whiteTurn = not self.whiteTurn
+                        chess_board.push_san(move.getChessNotation())
+                elif move.black_king_castle:
+                    if not chess_board.has_kingside_castling_rights(chess.BLACK):
+                        self.valid = False
+                    else:
+                        self.board[move.startRow][move.startCol] = "  "
+                        self.board[move.endRow][move.endCol] = move.pieceMoved
+                        self.board[0][7] = "  "
+                        self.board[0][5] = "bR"
+                        self.log.append(move)
+                        self.whiteTurn = not self.whiteTurn
+                        chess_board.push_san(move.getChessNotation())
+                elif move.black_queen_castle:
+                    if not chess_board.has_queenside_castling_rights(chess.BLACK):
+                        self.valid = False
+                    else:
+                        self.board[move.startRow][move.startCol] = "  "
+                        self.board[move.endRow][move.endCol] = move.pieceMoved
+                        self.board[0][0] = "  "
+                        self.board[0][3] = "bR"
+                        self.log.append(move)
+                        self.whiteTurn = not self.whiteTurn
+                        chess_board.push_san(move.getChessNotation())
+                else:
+                    self.board[move.startRow][move.startCol] = "  "
+                    self.board[move.endRow][move.endCol] = move.pieceMoved
+                    self.log.append(move)
+                    self.whiteTurn = not self.whiteTurn
+                    chess_board.push_san(move.getChessNotation())
 
         if chess_board.is_checkmate():
             self.won = True
@@ -110,7 +127,8 @@ class State():
 
 class Move():
 
-    def __init__(self, startSQ, endSQ, board):
+    def __init__(self, startSQ, endSQ, board, enpassantPossible=()):
+        self.bd = board
         self.startRow = startSQ[0]
         self.startCol = startSQ[1]
         self.endRow = endSQ[0]
@@ -138,6 +156,12 @@ class Move():
         self.black_queen_castle = False
         self.valid_promotion = False
         self.promoted_to = ""
+        self.is_w_en_passant = False
+        self.is_b_en_passant = False
+        self.to_square = self.bd[self.endRow][self.endCol]
+
+        self.isEnPassantMove = (self.pieceMoved[1] == 'p' and (
+            self.endRow, self.endCol) == enpassantPossible)
 
     def getChessNotation(self):
         self.checkCaptured(self.pieceMoved, self.pieceCaptured)
@@ -181,6 +205,9 @@ class Move():
     def getFile(self, c):
         return self.column_files[c]
 
+    def getPiece(self, r, c):
+        return self.bd[r][c]
+
     def getPieceCaptured(self, pc):
         return self.piece_c[pc]
 
@@ -207,3 +234,17 @@ class Move():
                 self.valid_promotion = True
             else:
                 self.valid_promotion = False
+
+    def en_passant(self):
+        if self.pieceMoved == "wP":
+            if self.startRow == 3 and self.endRow == 2:
+                if self.bd[self.startRow][self.endCol] == "bP":
+                    self.is_w_en_passant = True
+                else:
+                    self.is_w_en_passant = False
+        elif self.pieceMoved == "bP":
+            if self.startRow == 4 and self.endRow == 5:
+                if self.bd[self.startRow][self.endCol] == "wP":
+                    self.is_b_en_passant = True
+                else:
+                    self.is_b_en_passant = False
