@@ -1,6 +1,6 @@
 import numpy as np
 import chess
-import engine
+import minimax_evaluator
 
 chess_board = chess.Board()
 
@@ -80,8 +80,8 @@ class State():
                 self.draw = True
     
     def makeBlackMove(self):
-        if not self.whiteTurn:
-            self.best_move = str(engine.find_best_move(chess_board, 5))
+        if not self.whiteTurn and not chess_board.is_checkmate():
+            self.best_move = str(minimax_evaluator.find_best_move(chess_board, 5))
             self.start_col = file_columns[self.best_move[0]]
             self.start_row = rank_rows[self.best_move[1]]
             self.end_col = file_columns[self.best_move[2]]

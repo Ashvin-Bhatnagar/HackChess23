@@ -64,9 +64,9 @@ def find_best_move(board, depth):
 
 depth = 4
 
-best_move = find_best_move(board, depth)
-board.push(best_move)
+# best_move = find_best_move(board, depth)
+# board.push(best_move)
 
-print("Best Move:", best_move)
-print("Position Evaluation:", evaluate_position(board))
-print(board)
+# print("Best Move:", best_move)
+# print("Position Evaluation:", evaluate_position(board))
+# print(board)

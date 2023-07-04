@@ -3,7 +3,6 @@ import board_tracker
 import math
 import chess
 from pygame.locals import *
-import engine
 
 chess_board = chess.Board()
 
