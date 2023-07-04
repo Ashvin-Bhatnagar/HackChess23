@@ -1,8 +1,9 @@
 import pygame as pg
-import engine
+import board_tracker
 import math
 import chess
 from pygame.locals import *
+import engine
 
 chess_board = chess.Board()
 
@@ -29,7 +30,7 @@ def main():
     pg.init()
     screen = pg.display.set_mode((WIDTH + 40, HEIGHT))
     clock = pg.time.Clock()
-    state = engine.State()
+    state = board_tracker.State()
     load_Images()
     running = True
     sq_from_move = ()
@@ -47,52 +48,58 @@ def main():
             if e.type == pg.QUIT or state.won or state.draw:
                 running = False
             elif e.type == pg.MOUSEBUTTONDOWN:
-                location = pg.mouse.get_pos()
-                col = math.floor(location[0] / SQ_SIZE)
-                row = math.floor(location[1] / SQ_SIZE)
-                if sq_from_move == (row, col):
-                    sq_from_move = ()
-                    playerClicks = []
-                else:
-                    sq_from_move = (row, col)
-                    playerClicks.append(sq_from_move)
-                if len(playerClicks) == 2:
-                    move = engine.Move(
-                        playerClicks[0], playerClicks[1], state.board)
-                    move.is_promotion()
-                    move.en_passant()
-                    if move.valid_promotion:
-                        pg.event.clear()
-                        while True:
-                            event = pg.event.wait()
-                            if event.type == QUIT:
-                                pg.quit()
-                            elif event.type == KEYDOWN:
-                                if event.key == pg.K_q:
-                                    move.promoted_to = "Q"
-                                    break
-                                elif event.key == pg.K_r:
-                                    move.promoted_to = "R"
-                                    break
-                                elif event.key == pg.K_b:
-                                    move.promoted_to = "B"
-                                    break
-                                elif event.key == pg.K_n:
-                                    move.promoted_to = "N"
-                                    break
-                                else:
-                                    running = False
-                                    break
-                    state.makeMove(move)
-                    # print(state.board)
+                if state.whiteTurn:
+                    location = pg.mouse.get_pos()
+                    col = math.floor(location[0] / SQ_SIZE)
+                    row = math.floor(location[1] / SQ_SIZE)
+                    if sq_from_move == (row, col):
+                        sq_from_move = ()
+                        playerClicks = []
+                    else:
+                        sq_from_move = (row, col)
+                        playerClicks.append(sq_from_move)
+                    if len(playerClicks) == 2:
+                        move = board_tracker.Move(
+                            playerClicks[0], playerClicks[1], state.board)
+                        move.is_promotion()
+                        move.en_passant()
+                        if move.valid_promotion:
+                            pg.event.clear()
+                            while True:
+                                event = pg.event.wait()
+                                if event.type == QUIT:
+                                    pg.quit()
+                                elif event.type == KEYDOWN:
+                                    if event.key == pg.K_q:
+                                        move.promoted_to = "Q"
+                                        break
+                                    elif event.key == pg.K_r:
+                                        move.promoted_to = "R"
+                                        break
+                                    elif event.key == pg.K_b:
+                                        move.promoted_to = "B"
+                                        break
+                                    elif event.key == pg.K_n:
+                                        move.promoted_to = "N"
+                                        break
+                                    else:
+                                        running = False
+                                        break
+                        state.makeWhiteMove(move)
+                        # print(state.board)
 
-                    print(move.getChessNotation())
+                        # print(move.getStandardChessNotation())
 
-                    sq_from_move = ()
-                    playerClicks = []
-            # elif e.type == pg.KEYDOWN:
-            #     if e.key == pg.K_z:
-            #         state.undoMove()
+                        sq_from_move = ()
+                        playerClicks = []
+
+            state.makeBlackMove()
+
+
+                # elif e.type == pg.KEYDOWN:
+                #     if e.key == pg.K_z:
+                #         state.undoMove()
+
 
         drawGame(screen, state)
         clock.tick(FPS)
