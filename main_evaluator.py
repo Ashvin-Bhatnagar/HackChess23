@@ -4,7 +4,6 @@ from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense
 
-board = chess.Board()
 
 piece_values = {
     chess.PAWN: 100,
@@ -15,6 +14,7 @@ piece_values = {
     chess.KING: 20000
 }
 
+
 model = Sequential([
     Dense(128, activation='relu', input_shape=(64,)),
     Dense(64, activation='relu'),
@@ -24,7 +24,7 @@ model.compile(optimizer='adam', loss='mean_squared_error')
 
 def board_to_features(board):
     features = []
-    for piece_type, value in piece_values.items():
+    for piece_type in list(piece_values.keys()):
         white_pieces = board.pieces(piece_type, chess.WHITE)
         black_pieces = board.pieces(piece_type, chess.BLACK)
         features.append(len(white_pieces) - len(black_pieces))
@@ -76,10 +76,11 @@ def find_best_move(board):
     if board.legal_moves.count() <= 2000:
         best_eval = float('-inf')
         best_move = None
+        depth = 4
 
         for move in board.legal_moves:
             board.push(move)
-            eval = minimax_alpha_beta(board, 4, float('-inf'), float('inf'), False)
+            eval = minimax_alpha_beta(board, depth, float('-inf'), float('inf'), False)
             board.pop()
             if eval > best_eval:
                 best_eval = eval
@@ -87,6 +88,7 @@ def find_best_move(board):
 
         return best_move
     else:
+        train_neural_network(board)
         best_eval = float('-inf')
         best_move = None
 
@@ -100,7 +102,7 @@ def find_best_move(board):
 
         return best_move
 
-def train_neural_network():
+def train_neural_network(board):
     # Generate training data
     X_train = []
     y_train = []
@@ -119,13 +121,4 @@ def train_neural_network():
 
     model.fit(X_train, y_train, epochs=10)
 
-depth = 4
 
-train_neural_network()
-
-best_move = find_best_move(board)
-board.push(best_move)
-
-print("Best Move:", best_move)
-print("Position Evaluation:", evaluate_position(board))
-print(board)
