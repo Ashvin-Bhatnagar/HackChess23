@@ -95,9 +95,6 @@ def main():
             state.makeBlackMove()
 
 
-                # elif e.type == pg.KEYDOWN:
-                #     if e.key == pg.K_z:
-                #         state.undoMove()
 
 
         drawGame(screen, state)

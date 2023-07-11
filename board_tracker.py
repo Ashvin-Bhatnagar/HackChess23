@@ -1,6 +1,6 @@
 import numpy as np
 import chess
-import main_evaluator
+import ChessEngine
 
 chess_board = chess.Board()
 
@@ -31,7 +31,6 @@ class State():
         self.won = False
         self.draw = False
         self.enpassantPossible = ()
-        self.chess_board = chess_board
 
     def makeWhiteMove(self, move):
         move.is_castle()
@@ -82,7 +81,7 @@ class State():
     
     def makeBlackMove(self):
         if not self.whiteTurn and not chess_board.is_checkmate():
-            self.best_move = str(main_evaluator.find_best_move(chess_board))
+            self.best_move = str(ChessEngine.getBestMove(chess_board, 4))
             self.start_col = file_columns[self.best_move[0]]
             self.start_row = rank_rows[self.best_move[1]]
             self.end_col = file_columns[self.best_move[2]]
