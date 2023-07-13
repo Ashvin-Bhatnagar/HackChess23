@@ -1,8 +1,16 @@
 import numpy as np
 import chess
-import ChessEngine
+from stockfish import Stockfish
+
+stockfish = Stockfish()
+
 
 chess_board = chess.Board()
+'''
+stockfish.set_fen_position(chess_board.fen())
+
+print(stockfish.get_best_move())
+'''
 
 rank_rows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
 row_ranks = {r: c for c, r in rank_rows.items()}
@@ -31,6 +39,15 @@ class State():
         self.won = False
         self.draw = False
         self.enpassantPossible = ()
+        self.piece_c = {"bR": "R", "bN": "N", "bB": "B", "bQ": "Q", "bK": "K", "bP": "",
+                        "wR": "R", "wN": "N", "wB": "B", "wQ": "Q", "wK": "K", "wP": "", "  ": "  "}
+        self.b_p_pieces = {"Q": "bQ", "R": "bR", "B": "bB", "N": "bN"}
+        self.promoted_to = ""
+        self.wants_to_move = ""
+        self.valid_promotion = False
+        self.isEnpassantPossible = False
+        self.black_king_castle = False
+        self.black_queen_castle = False
 
     def makeWhiteMove(self, move):
         move.is_castle()
@@ -40,6 +57,7 @@ class State():
         self.board[move.startRow][move.startCol] = "  "
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.log.append(move)
+        
 
 
         if self.whiteTurn:
@@ -57,7 +75,7 @@ class State():
                 self.enpassantPossible = ()
 
             if move.white_king_castle:
-                if not chess_board.has_kingside_castling_rights(chess.WHITE):
+                if chess_board.has_kingside_castling_rights(chess.WHITE):
                     self.board[7][7] = "  "
                     self.board[7][5] = "wR"
                 else:
@@ -81,15 +99,49 @@ class State():
     
     def makeBlackMove(self):
         if not self.whiteTurn and not chess_board.is_checkmate():
-            self.best_move = str(ChessEngine.getBestMove(chess_board, 4))
+            self.is_castle()
+            self.is_promotion()
+            self.en_passant()
+            
+            stockfish.set_fen_position(chess_board.fen())
+            self.best_move = stockfish.get_best_move()
+            print(self.best_move)
             self.start_col = file_columns[self.best_move[0]]
             self.start_row = rank_rows[self.best_move[1]]
             self.end_col = file_columns[self.best_move[2]]
             self.end_row = rank_rows[self.best_move[3]]
             self.wants_to_move = self.board[self.start_row][self.start_col]
+            self.valid_promotion = False
+            self.isEnpassantPossible = False
+            self.black_king_castle = False
+            self.black_queen_castle = False
 
             self.board[self.start_row][self.start_col] = "  "
             self.board[self.end_row][self.end_col] = self.wants_to_move
+
+            if self.valid_promotion:
+                self.board[self.end_row][self.end_col] = self.b_p_pieces[self.promoted_to]
+
+            if self.isEnpassantPossible:
+                self.board[self.start_row][self.end_col] = "  "
+
+            if self.wants_to_move[1] == 'p' and abs(self.start_row - self.end_row) == 2:
+                self.enpassantPossible = (
+                    (self.start_row + self.end_row) // 2, self.end_col)
+            else:
+                self.enpassantPossible = ()
+
+            if self.best_move == "e8g8":
+                if chess_board.has_kingside_castling_rights(chess.BLACK):
+                    self.board[0][7] = "  "
+                    self.board[0][5] = "bR"
+
+            elif self.best_move == "e8c8":
+                if chess_board.has_queenside_castling_rights(chess.BLACK):
+                    self.board[0][0] = "  "
+                    self.board[0][3] = "bR"
+                else:
+                    self.valid = False
 
 
             self.whiteTurn = not self.whiteTurn
@@ -100,18 +152,30 @@ class State():
             if chess_board.is_stalemate() or chess_board.is_insufficient_material() or chess_board.can_claim_threefold_repetition() or chess_board.can_claim_fifty_moves() or chess_board.can_claim_draw() or chess_board.is_fivefold_repetition() or chess_board.is_seventyfive_moves():
                 self.draw = True
 
+    def is_promotion(self):
+        if (self.wants_to_move == "wP" and self.start_row == 1):
+            if self.end_row == 0:
+                self.valid_promotion = True
+            else:
+                self.valid_promotion = False
+        if (self.wants_to_move == "bP" and self.start_row == 6):
+            if self.end_row == 7:
+                self.valid_promotion = True
+            else:
+                self.valid_promotion = False
 
-'''
-    def undoMove(self):
-        if len(self.log) != 0:
-            last = self.log.pop()
-            self.board[last.startRow][last.startCol] = last.pieceMoved
-            self.board[last.endRow][last.endCol] = last.pieceCaptured
-            self.whiteTurn = not self.whiteTurn
-            chess_board.pop()
-'''
+    def en_passant(self):
+        if self.wants_to_move == "wP":
+            if self.start_row == 3 and self.end_row == 2:
+                if self.board[self.start_row][self.end_col] == "bP":
+                    self.isEnpassantPossible = True
 
-        
+        elif self.wants_to_move == "bP":
+            if self.start_row == 4 and self.end_row == 5:
+                if self.board[self.start_row][self.end_col] == "wP":
+                    self.isEnpassantPossible = True
+
+
 
 
 class Move():

@@ -71,15 +71,19 @@ def main():
                                 elif event.type == KEYDOWN:
                                     if event.key == pg.K_q:
                                         move.promoted_to = "Q"
+                                        state.promoted_to = "Q"
                                         break
                                     elif event.key == pg.K_r:
                                         move.promoted_to = "R"
+                                        state.promoted_to = "R"
                                         break
                                     elif event.key == pg.K_b:
                                         move.promoted_to = "B"
+                                        state.promoted_to = "B"
                                         break
                                     elif event.key == pg.K_n:
                                         move.promoted_to = "N"
+                                        state.promoted_to = "N"
                                         break
                                     else:
                                         running = False
